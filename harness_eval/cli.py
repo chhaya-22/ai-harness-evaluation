@@ -10,6 +10,7 @@ from .scorer import score_run
 from .store import list_runs, load_run, save_run
 from .harness import MockHarness, FlawedHarness
 from .regression import detect_regression
+from .trends import build_trend
 
 app = typer.Typer(help="Evaluate and benchmark an AI harness.")
 
@@ -40,6 +41,20 @@ def run(
     typer.echo(f"Overall:  {report.overall_score}")
     typer.echo(f"Saved:    {path}")
 
+@app.command()
+def trend(harness: str = typer.Option("mock", help="Harness to show history for.")):
+    """Show how a harness's overall score has changed across stored runs."""
+    report = build_trend(harness)
+    if not report.points:
+        typer.echo(f"No stored runs for harness '{harness}'.")
+        raise typer.Exit()
+
+    typer.echo(f"Trend for '{report.harness}'  ({len(report.points)} runs) — {report.direction}\n")
+
+    # Simple text sparkline: each run's score as a proportional bar.
+    for p in report.points:
+        bar = "█" * int(p.overall_score * 40)
+        typer.echo(f"  {p.run_id:<26} {p.overall_score:.4f}  {bar}")
 
 @app.command("list")
 def list_cmd():

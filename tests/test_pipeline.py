@@ -49,3 +49,20 @@ def test_no_regression_when_stable():
     report = detect_regression(baseline, candidate)
     assert not report.has_regression
     assert report.verdict == "OK"        
+
+def test_trend_direction_improving():
+    from harness_eval.trends import TrendPoint, TrendReport
+    report = TrendReport(harness="x", points=[
+        TrendPoint(run_id="1", overall_score=0.70, metrics={}),
+        TrendPoint(run_id="2", overall_score=0.85, metrics={}),
+    ])
+    assert report.direction == "improving"
+
+
+def test_trend_direction_stable():
+    from harness_eval.trends import TrendPoint, TrendReport
+    report = TrendReport(harness="x", points=[
+        TrendPoint(run_id="1", overall_score=0.90, metrics={}),
+        TrendPoint(run_id="2", overall_score=0.905, metrics={}),
+    ])
+    assert report.direction == "stable"    
