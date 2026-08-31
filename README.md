@@ -7,7 +7,7 @@ good, and where does it break?*
 
 The framework runs a harness against a dataset of test cases, scores each
 response across seven dimensions, and produces an overall score plus a report
-with failed cases and actionable recommendations.
+with failed cases, confidence intervals, and actionable recommendations.
 
 ## Why these metrics
 
@@ -39,6 +39,9 @@ transparency. The weights (in `scorer.py`) prioritise correctness and
 reliability over cost and latency — a harness that's cheap but wrong scores
 worse than one that's correct but slow. Weights are configurable per use case.
 
+Because every case is run `k` times, each metric also reports a 95% confidence
+interval, so you can tell a stable score from a noisy one.
+
 ## Installation
 
 ```powershell
@@ -55,6 +58,12 @@ Run an evaluation on a dataset:
 python -m harness_eval.cli run --dataset datasets/sample.json
 ```
 
+Run against the deliberately weaker harness (useful for demos):
+
+```powershell
+python -m harness_eval.cli run --dataset datasets/hard_cases.json --harness flawed
+```
+
 List past runs:
 
 ```powershell
@@ -65,6 +74,18 @@ Compare two runs metric by metric:
 
 ```powershell
 python -m harness_eval.cli compare <run_id_1> <run_id_2>
+```
+
+Check whether a candidate run regressed against a baseline:
+
+```powershell
+python -m harness_eval.cli regression <baseline_id> <candidate_id>
+```
+
+Show how a harness's score has changed over time:
+
+```powershell
+python -m harness_eval.cli trend --harness mock
 ```
 
 Generate JSON + Markdown + HTML reports:
@@ -126,6 +147,24 @@ optional:
 pytest
 ```
 
+Tests also run automatically on every push via GitHub Actions (see
+`.github/workflows/ci.yml`).
+
+## Beyond the core requirements
+
+Alongside the required metrics and reporting, the framework includes:
+
+- **Parallel execution** — cases run through a thread pool, since harness calls
+  are I/O-bound.
+- **Regression detection** — flags any metric that drops beyond a threshold
+  between two runs, and exits non-zero so it can gate a CI pipeline.
+- **Historical trend analysis** — tracks a harness's score across all stored
+  runs and reports whether it's improving, stable, or declining.
+- **Statistical significance** — 95% confidence intervals on every metric, so a
+  stable score can be told apart from a noisy one.
+- **CI integration** — GitHub Actions runs the test suite and a CLI smoke test
+  on every push.
+
 ## Project structure
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for the full design, component flow, and
@@ -134,7 +173,7 @@ trade-offs.
 ## Deliverables map
 
 - **Source code** — `harness_eval/`
-- **Sample dataset** — `datasets/sample.json`
+- **Sample datasets** — `datasets/sample.json`, `datasets/hard_cases.json`
 - **Sample reports** — `reports/`
 - **Architecture docs** — `ARCHITECTURE.md`
 - **Tests** — `tests/`
