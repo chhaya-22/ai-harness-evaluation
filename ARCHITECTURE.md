@@ -13,24 +13,27 @@ metric can be added without touching the runner.
 
 ## Component flow
 
-dataset (JSON) harness (adapter)
-│ │
-▼ ▼
-Dataset ───────────► Runner ──── runs each case k times, in parallel
-loader │
-▼
-per-case responses
-│
-▼
-Metrics ──── each scores 0..1, registered via decorator
-│
-▼
-Scorer ──── weighted overall score + failed cases
-│
-┌───────────┼───────────┐
-▼ ▼ ▼
-Store Reporter Recommendations
-(results/) (JSON/MD/HTML)
+## Component flow
+
+```mermaid
+flowchart TD
+    A[Dataset JSON] --> C[Dataset Loader]
+    B[Harness adapter] --> D[Runner]
+    C --> D
+    D -->|runs each case k times, in parallel| E[Per-case responses]
+    E --> F[Metrics<br/>each scores 0..1]
+    F --> G[Scorer<br/>weighted overall score]
+    G --> H[Store<br/>results/]
+    G --> I[Reporter<br/>JSON / MD / HTML]
+    G --> J[Recommendations]
+    H --> K[Regression detection]
+    H --> L[Trend analysis]
+
+    style A fill:#e3f2fd
+    style B fill:#e3f2fd
+    style G fill:#fff3e0
+    style I fill:#e8f5e9
+```
 
 
 ## Modules
