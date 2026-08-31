@@ -11,7 +11,6 @@ The design separates *what a harness is* from *how we evaluate it*, so any
 harness that conforms to a small interface can be benchmarked, and any new
 metric can be added without touching the runner.
 
-## Component flow
 
 ## Component flow
 
@@ -29,10 +28,13 @@ flowchart TD
     H --> K[Regression detection]
     H --> L[Trend analysis]
 
-    style A fill:#e3f2fd
-    style B fill:#e3f2fd
-    style G fill:#fff3e0
-    style I fill:#e8f5e9
+    classDef input fill:#2563eb,stroke:#1e40af,color:#ffffff;
+    classDef core fill:#ea580c,stroke:#9a3412,color:#ffffff;
+    classDef output fill:#16a34a,stroke:#15803d,color:#ffffff;
+
+    class A,B input;
+    class D,F,G core;
+    class H,I,J,K,L output;
 ```
 
 
