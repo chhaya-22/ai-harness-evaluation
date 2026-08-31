@@ -1,46 +1,47 @@
 # AI Harness Evaluation Framework
 
-A framework for measuring and benchmarking the effectiveness of an AI harness —
-the orchestration layer around prompts, models, tools, and retries. The goal is
-not to build a harness, but to answer a harder question: *is a given harness any
-good, and where does it break?*
+An AI harness is the layer that ties together prompts, models, tools, and
+retries. This framework doesn't build a harness — it measures how good one
+actually is, and shows where it falls short.
 
-The framework runs a harness against a dataset of test cases, scores each
-response across seven dimensions, and produces an overall score plus a report
-with failed cases, confidence intervals, and actionable recommendations.
+It runs a harness against a set of test cases, scores each response across seven
+dimensions, and produces a report with an overall score, the cases that failed,
+confidence intervals, and suggestions on what to fix.
 
 ## Why these metrics
 
-A harness can fail in more than one way, so a single "accuracy" number hides too
-much. I evaluate across seven dimensions, grouped by what they tell you:
+An AI harness can go wrong in many different ways, so putting everything into
+one "accuracy" score hides too much. I picked seven dimensions, each answering a
+different question about the harness:
 
-- **Correctness** — does the output match the expected answer? Uses fuzzy string
-  matching rather than exact equality, because LLM text varies in casing and
-  whitespace even when it's right. For open-ended tasks this is the metric I'd
-  extend first (semantic similarity or LLM-as-judge).
-- **Consistency** — run the same input `k` times and measure how often the
-  output agrees with itself. LLMs are stochastic; a harness that's right once
-  but different every time isn't reliable. This is the metric most naive
-  evaluations skip, and often the most revealing.
-- **Failure rate** — fraction of runs that error, time out, or return empty. A
-  fast, cheap harness that fails 20% of the time is not usable.
-- **Latency** — reported as p95, not mean. Tail latency is what real users feel;
-  the mean hides the slow requests.
-- **Cost & token usage** — average cost per call, scored against a budget. Cost
-  isn't good or bad on its own, so it's scored relative to a target.
-- **Structured output** — for cases that must return JSON, checks the output
-  parses and contains the required keys.
-- **Tool calling** — for cases that should trigger tools, checks the harness
-  called the ones it was supposed to.
+- **Correctness** — is the answer actually right? I compare the output to the
+  expected answer, but I don't check for an exact match, because an LLM can be
+  correct while still differing in casing or spacing. So I use fuzzy string
+  matching instead. For open-ended answers this is the first thing I'd improve,
+  probably with semantic similarity or an LLM acting as a judge.
+- **Consistency** — does the harness give the same answer if I ask the same
+  thing again? LLMs are random by nature, so I run each prompt several times and
+  measure how often the outputs agree. A harness that's right once but different
+  every time isn't something you can depend on. Most simple evaluations skip
+  this, but I found it's often the most telling metric.
+- **Failure rate** — how often does a run break, time out, or come back empty? A
+  harness can be fast and cheap and still be useless if it fails one out of
+  every five times.
+- **Latency** — I report the p95 (95th percentile), not the average. The average
+  hides the slow requests, and it's the slow ones that users actually notice.
+- **Cost and tokens** — the average cost per call. Cost isn't good or bad on its
+  own, so I score it against a target budget instead of in absolute terms.
+- **Structured output** — for cases that are supposed to return JSON, I check
+  that the output actually parses and has the keys it's meant to have.
+- **Tool calling** — for cases that should trigger a tool, I check whether the
+  harness actually called the right one.
 
-Each metric normalises to a 0–1 score (higher is better) so they can combine
-into one weighted overall score, while keeping the raw measured value for
-transparency. The weights (in `scorer.py`) prioritise correctness and
-reliability over cost and latency — a harness that's cheap but wrong scores
-worse than one that's correct but slow. Weights are configurable per use case.
+Every metric is scaled to a 0–1 score where higher is better, so they can be
+combined into a single overall score but I keep the raw number too, so nothing
+is hidden. The weights live in `scorer.py` and lean towards correctness and
+reliability over cost and speed, because a harness that's cheap but wrong is worse than one that's correct but a bit slow. The weights can be changed for a different use case.
 
-Because every case is run `k` times, each metric also reports a 95% confidence
-interval, so you can tell a stable score from a noisy one.
+Since each case is run several times, every metric also comes with a 95% confidence interval that way you can tell whether a score is solid or just noisy.
 
 ## Installation
 
@@ -111,6 +112,8 @@ class MyHarness(Harness):
 
 ## Adding your own metric
 
+You can see all registered metrics with `python -m harness_eval.cli list-metrics`,
+and `python -m harness_eval.cli register-metric` explains how to add one.
 Drop a new file in `metrics/`, subclass `Metric`, and decorate it with
 `@register`. The runner picks it up automatically — no other file changes.
 

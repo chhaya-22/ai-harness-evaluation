@@ -11,6 +11,7 @@ from .store import list_runs, load_run, save_run
 from .harness import MockHarness, FlawedHarness
 from .regression import detect_regression
 from .trends import build_trend
+from .metrics.base import all_metrics, metric_info
 
 app = typer.Typer(help="Evaluate and benchmark an AI harness.")
 
@@ -65,6 +66,36 @@ def list_cmd():
         return
     for r in runs:
         typer.echo(f"{r['run_id']:<28} {r['harness']:<8} score={r['overall_score']}")
+
+
+@app.command("list-metrics")
+def list_metrics():
+    """List every metric currently registered in the framework."""
+    typer.echo(f"{len(all_metrics())} metrics registered:\n")
+    for m in metric_info():
+        direction = "higher is better" if m["higher_is_better"] else "lower is better"
+        typer.echo(f"  {m['name']:<20} [{m['category']}]  ({direction})")
+
+
+@app.command("register-metric")
+def register_metric():
+    """Explain how to add a custom metric to the framework.
+
+    Metrics are auto-registered via a decorator, so 'registering' a metric
+    means dropping a file into harness_eval/metrics/. This command shows how,
+    and confirms what's currently loaded.
+    """
+    typer.echo("To register a new metric, add a file in harness_eval/metrics/ like:\n")
+    typer.echo("    from .base import Metric, register\n")
+    typer.echo("    @register")
+    typer.echo("    class MyMetric(Metric):")
+    typer.echo("        name = 'my_metric'")
+    typer.echo("        category = 'quality'")
+    typer.echo("        def score(self, case, responses):")
+    typer.echo("            return MetricResult(metric=self.name, score=...)\n")
+    typer.echo("Then import it in harness_eval/metrics/__init__.py.")
+    typer.echo("The runner picks it up automatically — no other changes needed.\n")
+    typer.echo(f"Currently registered: {', '.join(all_metrics())}")
 
 
 @app.command()
