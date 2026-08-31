@@ -1,7 +1,7 @@
 # AI Harness Evaluation Framework
 
 An AI harness is the layer that ties together prompts, models, tools, and
-retries. This framework doesn't build a harness — it measures how good one
+retries. This framework doesn't build a harness it measures how good one
 actually is, and shows where it falls short.
 
 It runs a harness against a set of test cases, scores each response across seven
@@ -115,7 +115,7 @@ class MyHarness(Harness):
 You can see all registered metrics with `python -m harness_eval.cli list-metrics`,
 and `python -m harness_eval.cli register-metric` explains how to add one.
 Drop a new file in `metrics/`, subclass `Metric`, and decorate it with
-`@register`. The runner picks it up automatically — no other file changes.
+`@register`. The runner picks it up automatically no other file changes.
 
 ```python
 @register
@@ -129,7 +129,7 @@ class MyMetric(Metric):
 
 ## Adding your own dataset
 
-Datasets are plain JSON lists of test cases — no code changes needed. Each case
+Datasets are plain JSON lists of test cases no code changes needed. Each case
 supports an expected answer, an output schema, and expected tool calls, all
 optional:
 

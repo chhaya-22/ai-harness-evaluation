@@ -2,8 +2,8 @@
 
 ## Overview
 
-This framework evaluates an AI harness — the layer that orchestrates prompts,
-models, tools, and retries — by running it against a dataset of test cases and
+This framework evaluates an AI harness the layer that orchestrates prompts,
+models, tools, and retries by running it against a dataset of test cases and
 scoring the responses across several dimensions. It does not build a harness;
 it measures one.
 
@@ -57,7 +57,7 @@ flowchart TD
 **Metric registry via decorators.** Each metric calls `@register` at import
 time and lands in a central dict. The runner asks the registry for "all
 metrics" rather than importing each one, so adding a metric is a single new
-file — no changes to the runner or scorer. This directly serves the
+file no changes to the runner or scorer. This directly serves the
 extensibility requirement.
 
 **Metrics score a *list* of responses, not one.** Every case is run `k` times.
@@ -72,7 +72,7 @@ also keeps its raw `value` for transparency.
 
 **Skip, don't penalise, inapplicable metrics.** A correctness check on a case
 with no expected answer, or a tool check on a case with no expected tools,
-returns 1.0 and a note — not 0.0. Otherwise every dataset would have to specify
+returns 1.0 and a note not 0.0. Otherwise every dataset would have to specify
 every field for every case. Applicability is a property of the case, not a
 failure of the harness.
 
@@ -88,7 +88,7 @@ from one `_report_dict()`. The formats can never drift out of sync.
 
 Harness calls are I/O-bound (network latency dominates), so the runner uses a
 thread pool. Threads overlap the waiting without process overhead. If scoring
-were CPU-heavy, processes would be the better choice — but scoring is cheap
+were CPU-heavy, processes would be the better choice but scoring is cheap
 compared to the calls themselves.
 
 ## Trade-offs and what I'd add next
@@ -98,6 +98,6 @@ compared to the calls themselves.
   stay the same.
 - **Correctness uses fuzzy string matching.** Good enough for short factual
   answers; for open-ended text I'd add semantic similarity or an LLM-as-judge
-  metric — which the registry makes easy to drop in.
+  metric which the registry makes easy to drop in.
 - **Structured-output check is key-presence, not full JSON-Schema.** Catches
   the common failures; full schema validation is the natural next step.
