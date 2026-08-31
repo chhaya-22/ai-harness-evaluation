@@ -1,11 +1,14 @@
+from harness_eval.dataset import load_dataset
 from harness_eval.harness import MockHarness
-from harness_eval.metrics.base import all_metrics, get_metric
-from harness_eval.models import TestCase
+from harness_eval.runner import Runner
 
-case = TestCase(id="t1", prompt="capital of France?", expected="Paris")
-h = MockHarness(seed=1)
-responses = [h.run(case) for _ in range(5)]
+dataset = load_dataset("datasets/sample.json")
+print(f"loaded {len(dataset)} cases")
 
-print("metrics found:", all_metrics())
-for name in all_metrics():
-    print(get_metric(name).score(case, responses))
+runner = Runner(MockHarness(seed=7), repeats=5)
+result = runner.run(dataset)
+
+for cr in result.case_results:
+    print(f"\n[{cr.case.id}]  ({cr.case.category})")
+    for m in cr.metrics:
+        print(f"   {m.metric:<18} {m.score:.3f}")

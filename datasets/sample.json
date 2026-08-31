@@ -1,0 +1,27 @@
+[
+  {
+    "id": "qa_capital_france",
+    "prompt": "What is the capital of France?",
+    "category": "factual_qa",
+    "expected": "Paris"
+  },
+  {
+    "id": "qa_capital_japan",
+    "prompt": "What is the capital of Japan?",
+    "category": "factual_qa",
+    "expected": "Tokyo"
+  },
+  {
+    "id": "json_user_profile",
+    "prompt": "Return a JSON object with keys name and age for a user named Asha aged 30.",
+    "category": "structured",
+    "expected": "{\"name\": \"Asha\", \"age\": 30}",
+    "output_schema": {"required": ["name", "age"]}
+  },
+  {
+    "id": "tool_weather_lookup",
+    "prompt": "What is the weather in Delhi today?",
+    "category": "tool_use",
+    "expected_tools": ["get_weather"]
+  }
+]
