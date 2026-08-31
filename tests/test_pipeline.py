@@ -28,3 +28,24 @@ def test_dataset_loader_rejects_non_list(tmp_path):
         assert False, "should have raised"
     except ValueError:
         pass
+
+def test_regression_detected_on_score_drop():
+    from harness_eval.regression import detect_regression
+    baseline = {"run_id": "b", "overall_score": 0.9,
+                "metrics": {"correctness": 1.0, "latency": 0.9}}
+    candidate = {"run_id": "c", "overall_score": 0.6,
+                 "metrics": {"correctness": 0.5, "latency": 0.9}}
+    report = detect_regression(baseline, candidate)
+    assert report.has_regression
+    assert report.verdict == "REGRESSION"
+
+
+def test_no_regression_when_stable():
+    from harness_eval.regression import detect_regression
+    baseline = {"run_id": "b", "overall_score": 0.9,
+                "metrics": {"correctness": 1.0, "latency": 0.9}}
+    candidate = {"run_id": "c", "overall_score": 0.91,
+                 "metrics": {"correctness": 1.0, "latency": 0.92}}
+    report = detect_regression(baseline, candidate)
+    assert not report.has_regression
+    assert report.verdict == "OK"        

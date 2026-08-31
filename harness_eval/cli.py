@@ -9,6 +9,7 @@ from .runner import Runner
 from .scorer import score_run
 from .store import list_runs, load_run, save_run
 from .harness import MockHarness, FlawedHarness
+from .regression import detect_regression
 
 app = typer.Typer(help="Evaluate and benchmark an AI harness.")
 
@@ -62,6 +63,27 @@ def compare(run_a: str, run_b: str):
         av, bv = a["metrics"][metric], b["metrics"].get(metric, 0.0)
         typer.echo(f"{metric:<18} {av:<20} {bv:<20} {bv - av:+.4f}")
 
+
+@app.command()
+def regression(
+    baseline: str,
+    candidate: str,
+    threshold: float = typer.Option(0.05, help="Max allowed score drop before flagging."),
+):
+    """Check whether a candidate run regressed against a baseline."""
+    report = detect_regression(load_run(baseline), load_run(candidate), threshold)
+
+    typer.echo(f"Baseline:  {report.baseline_id}")
+    typer.echo(f"Candidate: {report.candidate_id}")
+    typer.echo(f"Overall delta: {report.overall_delta:+.4f}")
+    typer.echo(f"Verdict:   {report.verdict}\n")
+
+    for d in report.deltas:
+        flag = "  <-- REGRESSION" if d.is_regression else ""
+        typer.echo(f"  {d.metric:<18} {d.baseline:.3f} -> {d.candidate:.3f}  ({d.delta:+.4f}){flag}")
+
+    if report.has_regression:
+        raise typer.Exit(1)  # non-zero exit so CI can catch regressions
 
 @app.command()
 def report(
