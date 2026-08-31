@@ -4,3 +4,4 @@ __pycache__/
 reports/*.html
 reports/*.json
 smoke.py
+results/*.json
