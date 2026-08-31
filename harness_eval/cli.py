@@ -8,11 +8,15 @@ from .harness import MockHarness
 from .runner import Runner
 from .scorer import score_run
 from .store import list_runs, load_run, save_run
+from .harness import MockHarness, FlawedHarness
 
 app = typer.Typer(help="Evaluate and benchmark an AI harness.")
 
 # Registry of harnesses the CLI knows how to build. Add real harnesses here.
-HARNESSES = {"mock": lambda: MockHarness(seed=7)}
+HARNESSES = {
+    "mock": lambda: MockHarness(seed=7),
+    "flawed": lambda: FlawedHarness(seed=7),
+}
 
 
 @app.command()
