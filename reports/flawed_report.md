@@ -1,6 +1,6 @@
 # Harness Evaluation Report — `flawed`
 
-**Generated:** 2026-08-31T13:53:03+00:00  
+**Generated:** 2026-08-31T13:54:50+00:00  
 **Overall score:** 0.7937
 
 ## Metric breakdown
