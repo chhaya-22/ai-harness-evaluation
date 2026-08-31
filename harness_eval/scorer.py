@@ -4,6 +4,7 @@ from dataclasses import dataclass, field
 
 from .metrics.base import get_metric
 from .runner import RunResult
+from .stats import mean_and_ci
 
 # Weights reflect what matters most for a production harness. Correctness and
 # reliability dominate; cost/latency matter but shouldn't outweigh a harness
@@ -24,6 +25,7 @@ class MetricSummary:
     metric: str
     mean_score: float
     weight: float
+    ci_half_width: float = 0.0   # ± range at 95% confidence
 
 
 @dataclass
@@ -53,9 +55,9 @@ def score_run(run: RunResult, weights: dict[str, float] | None = None) -> ScoreR
     weighted_sum = 0.0
     weight_total = 0.0
     for metric, scores in by_metric.items():
-        mean = sum(scores) / len(scores)
+        mean, ci = mean_and_ci(scores)
         w = weights.get(metric, 0.0)
-        summaries.append(MetricSummary(metric=metric, mean_score=mean, weight=w))
+        summaries.append(MetricSummary(metric=metric, mean_score=mean, weight=w, ci_half_width=ci))
         weighted_sum += mean * w
         weight_total += w
 

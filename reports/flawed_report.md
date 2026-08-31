@@ -1,19 +1,19 @@
 # Harness Evaluation Report — `flawed`
 
-**Generated:** 2026-08-31T13:26:24+00:00  
+**Generated:** 2026-08-31T13:53:03+00:00  
 **Overall score:** 0.7937
 
 ## Metric breakdown
 
-| Metric | Mean score | Weight |
-| --- | --- | --- |
-| correctness | 0.750 | 0.3 |
-| failure_rate | 0.800 | 0.2 |
-| consistency | 0.750 | 0.15 |
-| structured_output | 0.938 | 0.1 |
-| tool_calling | 0.812 | 0.1 |
-| latency | 0.640 | 0.08 |
-| cost | 1.000 | 0.07 |
+| Metric | Mean score | 95% CI | Weight |
+| --- | --- | --- | --- |
+| correctness | 0.750 | ±0.200 | 0.3 |
+| failure_rate | 0.800 | ±0.000 | 0.2 |
+| consistency | 0.750 | ±0.200 | 0.15 |
+| structured_output | 0.938 | ±0.122 | 0.1 |
+| tool_calling | 0.812 | ±0.367 | 0.1 |
+| latency | 0.640 | ±0.146 | 0.08 |
+| cost | 1.000 | ±0.000 | 0.07 |
 
 ## Failed cases
 

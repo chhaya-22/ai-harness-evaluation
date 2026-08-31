@@ -13,8 +13,13 @@ def _report_dict(report: ScoreReport) -> dict:
         "harness": report.harness_name,
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "overall_score": report.overall_score,
-        "metrics": [
-            {"metric": s.metric, "mean_score": round(s.mean_score, 4), "weight": s.weight}
+                "metrics": [
+            {
+                "metric": s.metric,
+                "mean_score": round(s.mean_score, 4),
+                "ci_half_width": round(s.ci_half_width, 4),
+                "weight": s.weight,
+            }
             for s in report.metric_summaries
         ],
         "failed_cases": report.failed_cases,
@@ -38,10 +43,13 @@ def to_markdown(report: ScoreReport, path: str | Path) -> Path:
         "",
         "## Metric breakdown",
         "",
-        "| Metric | Mean score | Weight |",
-        "| --- | --- | --- |",
+               "| Metric | Mean score | 95% CI | Weight |",
+        "| --- | --- | --- | --- |",
     ]
-    lines += [f"| {m['metric']} | {m['mean_score']:.3f} | {m['weight']} |" for m in d["metrics"]]
+    lines += [
+        f"| {m['metric']} | {m['mean_score']:.3f} | ±{m['ci_half_width']:.3f} | {m['weight']} |"
+        for m in d["metrics"]
+    ]
 
     lines += ["", "## Failed cases", ""]
     if d["failed_cases"]:
@@ -63,7 +71,8 @@ def to_markdown(report: ScoreReport, path: str | Path) -> Path:
 def to_html(report: ScoreReport, path: str | Path) -> Path:
     d = _report_dict(report)
     rows = "\n".join(
-        f"<tr><td>{m['metric']}</td><td>{m['mean_score']:.3f}</td><td>{m['weight']}</td></tr>"
+        f"<tr><td>{m['metric']}</td><td>{m['mean_score']:.3f}</td>"
+        f"<td>&plusmn;{m['ci_half_width']:.3f}</td><td>{m['weight']}</td></tr>"
         for m in d["metrics"]
     )
     if d["failed_cases"]:
@@ -102,7 +111,7 @@ def to_html(report: ScoreReport, path: str | Path) -> Path:
   <div class="bar"><span></span></div>
   <h2>Metric breakdown</h2>
   <table>
-    <tr><th>Metric</th><th>Mean score</th><th>Weight</th></tr>
+    <tr><th>Metric</th><th>Mean score</th><th>95% CI</th><th>Weight</th></tr>
     {rows}
   </table>
   <h2>Failed cases</h2>
